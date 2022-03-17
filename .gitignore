@@ -1,0 +1,6 @@
+conf/**/*
+node_modules/**/*
+package-lock.json
+.pid
+*.log
+*.geany
