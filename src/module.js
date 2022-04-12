@@ -14,12 +14,17 @@ export default class Module extends QueueModule {
   }
 
   async beforeStart () {
-    log.warn(new Date().toISOString(), `Authenticating user ${this.options.username}`);
-    const ticket = await Backend.authenticate(this.options.username, this.options.password);
-    log.warn(new Date().toISOString(), `User ${this.options.username} authenticated succeessfully`);
-    veda.ticket = ticket.ticket;
-    await veda.init(ticket.user_uri);
-    setTimeout(this.beforeStart.bind(this), (ticket.end_time - Date.now()) * 0.9);
+    try {
+      log.warn(new Date().toISOString(), `Authenticating user ${this.options.username}`);
+      const ticket = await Backend.authenticate(this.options.username, this.options.password);
+      log.warn(new Date().toISOString(), `User ${this.options.username} authenticated succeessfully`);
+      veda.ticket = ticket.ticket;
+      await veda.init(ticket.user_uri);
+      setTimeout(this.beforeStart.bind(this), (ticket.end_time - Date.now()) * 0.9);
+    } catch (error) {
+      log.error(new Date().toISOString(), 'Before start error', error);
+      setTimeout(this.beforeStart.bind(this), 60 * 1000);
+    }
   }
 
   async process (el) {
