@@ -17,7 +17,7 @@ export default class Module extends QueueModule {
     try {
       log.warn(new Date().toISOString(), `Authenticating user ${this.options.username}`);
       const ticket = await Backend.authenticate(this.options.username, this.options.password);
-      log.warn(new Date().toISOString(), `User ${this.options.username} authenticated succeessfully`);
+      log.warn(new Date().toISOString(), `User ${this.options.username} authenticated successfully`);
       veda.ticket = ticket.ticket;
       await veda.init(ticket.user_uri);
       setTimeout(this.beforeStart.bind(this), (ticket.end_time - Date.now()) * 0.9);
@@ -29,7 +29,7 @@ export default class Module extends QueueModule {
 
   async process (el) {
     if (++this.counter % 10000 === 0) {
-      log.debug(new Date().toISOString(), `${this.counter} queue elements processed`);
+      log.warn(new Date().toISOString(), `${this.counter} queue elements processed`);
     }
     if (el.cmd === 'put') {
       try {
