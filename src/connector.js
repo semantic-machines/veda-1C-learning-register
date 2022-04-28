@@ -64,26 +64,26 @@ export default class Connector {
   }
 
   static async #setAcceptedStatus (individual) {
-    individual.set('v-s:hasStatus', 'v-s:StatusAccepted');
     try {
+      individual.set('v-s:hasStatus', 'v-s:StatusAccepted');
       await individual.save(false);
       log.warn(new Date().toISOString(), 'Status set to v-s:StatusAccepted', individual.id);
     } catch (error) {
       log.error(new Date().toISOString(), 'Failed to set status v-s:StatusAccepted', error.stack);
-      throw error;
+      // throw error;
     }
   }
 
   static async #setRejectedStatus (individual, err) {
-    individual.set('v-s:hasStatus', 'v-s:StatusRejected');
-    const responseBody = await err.response.json();
-    individual.set('v-s:errorMessage', responseBody.data['ТекстОшибки']);
     try {
+      individual.set('v-s:hasStatus', 'v-s:StatusRejected');
+      const responseBody = await err.response.json();
+      individual.set('v-s:errorMessage', responseBody.data['ТекстОшибки']);
       await individual.save(false);
       log.warn(new Date().toISOString(), 'Status set to v-s:StatusRejected', individual.id);
     } catch (error) {
       log.error(new Date().toISOString(), 'Failed to set status v-s:StatusRejected', individual.id, error.stack);
-      throw error;
+      // throw error;
     }
   }
 }
