@@ -4,13 +4,13 @@ let cfg;
 
 try {
   cfg = fs.readFileSync('./conf/veda-1C.properties', 'utf-8');
-} catch (err) {
+} catch (error) {
   console.log(`config file './conf/veda-1C.properties' not found`);
 }
 
 try {
   cfg = fs.readFileSync('../conf/veda-1C.properties', 'utf-8');
-} catch (err) {
+} catch (error) {
   console.log(`config file '../conf/veda-1C.properties' not found`);
 }
 

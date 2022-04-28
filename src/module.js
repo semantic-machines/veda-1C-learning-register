@@ -7,6 +7,9 @@ import IndividualModel from 'veda/js/common/individual_model.js';
 import Backend from 'veda/js/browser/backend_browser.js';
 import Connector from './connector.js';
 
+const defaultTimeout = 60000;
+const timeout = (ms = defaultTimeout) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export default class Module extends QueueModule {
   constructor (options) {
     super(options);
@@ -23,7 +26,12 @@ export default class Module extends QueueModule {
       setTimeout(this.beforeStart.bind(this), (ticket.end_time - Date.now()) * 0.9);
     } catch (error) {
       log.error(new Date().toISOString(), 'Before start error', error);
-      setTimeout(this.beforeStart.bind(this), 60 * 1000);
+
+      if (this.options.errorStategy === 'fail') throw error;
+
+      log.error(new Date().toISOString(), `Will retry in ${(this.options.retryTimeout || defaultTimeout) / 1000} sec.`);
+      await timeout(this.options.retryTimeout);
+      return this.beforeStart();
     }
   }
 
@@ -43,8 +51,13 @@ export default class Module extends QueueModule {
         }
         await Connector.exportSignUp(individual);
       } catch (error) {
-        log.error(new Date().toISOString(), `Error processing queue record: ${el.uri}, cmd: ${el.cmd}, ${error.stack}`);
-        throw error;
+        log.error(new Date().toISOString(), `Error processing queue record: ${el.uri}, cmd: ${el.cmd}, ${error}`);
+
+        if (this.options.errorStategy === 'fail') throw error;
+
+        log.error(new Date().toISOString(), `Will retry in ${(this.options.retryTimeout || defaultTimeout) / 1000} sec.`);
+        await timeout(this.options.retryTimeout);
+        return this.process(el);
       }
     }
   }

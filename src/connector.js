@@ -50,7 +50,7 @@ export default class Connector {
       response = await fetch(`${options.oneUrl}/eduupb/hs/mondiedu/education/entry`, params);
       log.debug(new Date().toISOString(), '1C response:', response);
     } catch (error) {
-      log.error(new Date().toISOString(), 'Network error', error.stack);
+      log.error(new Date().toISOString(), 'Network error', error);
       throw error;
     }
 
@@ -58,7 +58,7 @@ export default class Connector {
       checkResponse(response);
       await Connector.#setAcceptedStatus(individual);
     } catch (error) {
-      log.error(new Date().toISOString(), 'Error in 1C:', error.stack);
+      log.error(new Date().toISOString(), 'Error in 1C:', error);
       await Connector.#setRejectedStatus(individual, error);
     }
   }
@@ -69,8 +69,8 @@ export default class Connector {
       await individual.save(false);
       log.warn(new Date().toISOString(), 'Status set to v-s:StatusAccepted', individual.id);
     } catch (error) {
-      log.error(new Date().toISOString(), 'Failed to set status v-s:StatusAccepted', error.stack);
-      // throw error;
+      log.error(new Date().toISOString(), 'Failed to set status v-s:StatusAccepted', individual.id, error);
+      throw error;
     }
   }
 
@@ -82,8 +82,8 @@ export default class Connector {
       await individual.save(false);
       log.warn(new Date().toISOString(), 'Status set to v-s:StatusRejected', individual.id);
     } catch (error) {
-      log.error(new Date().toISOString(), 'Failed to set status v-s:StatusRejected', individual.id, error.stack);
-      // throw error;
+      log.error(new Date().toISOString(), 'Failed to set status v-s:StatusRejected', individual.id, error);
+      throw error;
     }
   }
 }
