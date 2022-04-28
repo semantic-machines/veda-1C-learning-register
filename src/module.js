@@ -1,6 +1,7 @@
 import './polyfill.js';
 import log from 'loglevel';
 import QueueModule from 'veda-node-queue-consumer';
+import sendTelegram from './sendTelegram.js';
 
 import veda from 'veda/js/common/veda.js';
 import IndividualModel from 'veda/js/common/individual_model.js';
@@ -27,9 +28,14 @@ export default class Module extends QueueModule {
     } catch (error) {
       log.error(new Date().toISOString(), 'Before start error', error);
 
-      if (this.options.errorStategy === 'fail') throw error;
+      if (this.options.errorStategy === 'fail') {
+        sendTelegram('*Failed to start!!!*');
+        throw error;
+      }
 
-      log.error(new Date().toISOString(), `Will retry in ${(this.options.retryTimeout || defaultTimeout) / 1000} sec.`);
+      const retryMsg = `Will retry in ${(this.options.retryTimeout || defaultTimeout) / 1000} sec.`;
+      log.error(new Date().toISOString(), retryMsg);
+      sendTelegram('Failed to start.', retryMsg);
       await timeout(this.options.retryTimeout);
       return this.beforeStart();
     }
@@ -53,9 +59,14 @@ export default class Module extends QueueModule {
       } catch (error) {
         log.error(new Date().toISOString(), `Error processing queue record: ${el.uri}, cmd: ${el.cmd}, ${error}`);
 
-        if (this.options.errorStategy === 'fail') throw error;
+        if (this.options.errorStategy === 'fail') {
+          sendTelegram(`Failed to process queue record: ${el.uri}`, '*Exit!!!*');
+          throw error;
+        }
 
-        log.error(new Date().toISOString(), `Will retry in ${(this.options.retryTimeout || defaultTimeout) / 1000} sec.`);
+        const retryMsg = `Will retry in ${(this.options.retryTimeout || defaultTimeout) / 1000} sec.`;
+        log.error(new Date().toISOString(), retryMsg);
+        sendTelegram(`Failed to process queue record: ${el.uri}`, retryMsg);
         await timeout(this.options.retryTimeout);
         return this.process(el);
       }
