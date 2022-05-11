@@ -68,7 +68,7 @@ export default class Module extends QueueModule {
         log.error(new Date().toISOString(), retryMsg);
         sendTelegram(`Failed to process queue record: ${el.uri}`, retryMsg);
         await timeout(this.options.retryTimeout);
-        return this.process(el);
+        await this.process(el);
       }
     }
   }
