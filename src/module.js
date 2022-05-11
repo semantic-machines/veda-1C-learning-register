@@ -48,14 +48,9 @@ export default class Module extends QueueModule {
     if (el.cmd === 'put') {
       try {
         const individual = new IndividualModel(el.new_state, false);
-        if (
-          !individual.hasValue('rdf:type', 'mnd-s:SignUpForLesson') ||
-          individual.hasValue('v-s:lastEditor', 'cfg:VedaSystemAppointment') ||
-          individual.hasValue('v-s:updateCounter') && individual.get('v-s:updateCounter')[0] > 1
-        ) {
-          return;
+        if (individual.hasValue('rdf:type', 'mnd-s:SignUpForLesson') && !individual.hasValue('v-s:hasStatus')) {
+          await Connector.exportSignUp(individual);
         }
-        await Connector.exportSignUp(individual);
       } catch (error) {
         log.error(new Date().toISOString(), `Error processing queue record: ${el.uri}, cmd: ${el.cmd}, ${error}`);
 
