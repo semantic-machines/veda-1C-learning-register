@@ -48,7 +48,11 @@ export default class Module extends QueueModule {
     if (el.cmd === 'put') {
       try {
         const individual = new IndividualModel(el.new_state, false);
-        if (individual.hasValue('rdf:type', 'mnd-s:SignUpForLesson') && !individual.hasValue('v-s:hasStatus')) {
+        if (
+          individual.hasValue('rdf:type', 'mnd-s:SignUpForLesson') &&
+          individual.hasValue('v-s:updateCounter') &&
+          individual.get('v-s:updateCounter')[0] === 1
+        ) {
           await Connector.exportSignUp(individual);
         }
       } catch (error) {
