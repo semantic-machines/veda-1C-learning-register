@@ -5,4 +5,4 @@ import options from './options.js';
 log.setLevel(options.logLevel || 'warn');
 
 const myModule = new Module(options);
-myModule.run();
+myModule.start();
