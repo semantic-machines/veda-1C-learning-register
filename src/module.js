@@ -58,9 +58,12 @@ export default class Module extends QueueModule {
       } catch (error) {
         log.error(new Date().toISOString(), `Error processing queue record: ${el.uri}, cmd: ${el.cmd}, ${error}`);
 
-        if (this.options.errorStategy === 'fail') {
-          sendTelegram(`Failed to process queue record: ${el.uri}`, '*Exit!!!*');
+        if (this.options.errorStrategy === 'fail') {
+          sendTelegram(`Failed to process queue record: ${el.uri}`, '*EXIT!!!*');
           throw error;
+        } else if (this.options.errorStrategy === 'skip') {
+          sendTelegram(`Failed to process queue record: ${el.uri}`, '*SKIP!!!*');
+          return;
         }
 
         const retryMsg = `Will retry in ${(this.options.retryTimeout || defaultTimeout) / 1000} sec.`;

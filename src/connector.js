@@ -42,13 +42,13 @@ export default class Connector {
       },
     };
 
-    log.debug(new Date().toISOString(), 'Request params:', params);
+    log.warn(new Date().toISOString(), 'Request params:', params);
 
     let response;
 
     try {
       response = await fetch(`${options.oneUrl}/eduupb/hs/mondiedu/education/entry`, params);
-      log.debug(new Date().toISOString(), '1C response:', response);
+      log.warn(new Date().toISOString(), '1C response:', response);
     } catch (error) {
       log.error(new Date().toISOString(), 'Network error', error);
       throw error;
@@ -77,8 +77,14 @@ export default class Connector {
   static async #setRejectedStatus (individual, err) {
     try {
       individual.set('v-s:hasStatus', 'v-s:StatusRejected');
-      const responseBody = await err.response.json();
-      individual.set('v-s:errorMessage', responseBody.data['ТекстОшибки']);
+      let responseBody;
+//      try {
+//        responseBody = await err.response.json();
+//      } catch (error) {
+        responseBody = await err.response.text();
+//      }
+      log.error(new Date().toISOString(), 'Error response:', responseBody.data?.['ТекстОшибки'] ?? responseBody);
+      individual.set('v-s:errorMessage', responseBody.data?.['ТекстОшибки'] ?? responseBody);
       await individual.save(false);
       log.warn(new Date().toISOString(), 'Status set to v-s:StatusRejected', individual.id);
     } catch (error) {
