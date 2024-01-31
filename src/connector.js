@@ -27,7 +27,12 @@ export default class Connector {
       log.warn(new Date().toISOString(), 'Nothing to export, lesson or participant is not defined', JSON.stringify(individual.properties));
       return;
     }
-
+    const origin = await individual.getPropertyChain('mnd-s:hasLesson', 'v-s:origin');
+    let oneUrl = options[origin[0]];
+    if (oneUrl == undefined) {
+      oneUrl = options.default_oneUrl;
+    }
+    log.warn(`url = ${oneUrl}`);
     const body = {
       'ПроведениеОбучения': lesson,
       'Пользователь': participant.id,
@@ -47,7 +52,7 @@ export default class Connector {
     let response;
 
     try {
-      response = await fetch(`${options.oneUrl}/eduupb/hs/mondiedu/education/entry`, params);
+      response = await fetch(`${oneUrl}`, params);
       log.warn(new Date().toISOString(), '1C response:', response);
     } catch (error) {
       log.error(new Date().toISOString(), 'Network error', error);
